@@ -2,6 +2,7 @@
 
 * added more information regarding installation hiccups and finding HOMER
 * migrating to Github for long-term, removing references to Bitbucket
+* removed requirement to filter by log odds detection greater than 0 when appending known pwms in `utils.R`
 
 # marge 0.0.3
 
