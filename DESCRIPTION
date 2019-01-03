@@ -1,0 +1,28 @@
+Package: marge
+Title: API for HOMER in R for Genomic Analysis using Tidy Conventions
+Version: 0.0.4
+Authors@R: c(
+  person("Robert A.", "Amezquita", , "robert.amezquita@fredhutch.org", role = c("aut", "cre", "cph"))
+  )		   
+Description: API for HOMER in R for genomic analysis using tidy conventions. Runs HOMER from native R functions and allows for organization of motif enrichment analysis, and subsequent reading in of motifs into tidily formatted tibbles for further analysis and visualization of many parallel analyses.
+Depends: R (>= 3.3.0)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: testthat,
+    knitr,
+    rmarkdown
+RoxygenNote: 6.1.1
+Imports: magrittr,
+    stringr,
+    tibble,
+    purrr,
+    dplyr,
+    readr,
+    lazyeval,
+    tidyr,
+    rlang,
+    utils
+VignetteBuilder: knitr
+Enhances: valr,
+    ggplot2

@@ -1,0 +1,11 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^docs$
+bitbucket-pipelines.yml
+tar.gz$
+~$
+^exec$
+^README.html$
+^README.Rmd$
+^cran-comments.md$
+^data-raw$

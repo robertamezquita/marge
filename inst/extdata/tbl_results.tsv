@@ -1,0 +1,2 @@
+id	motif_name	motif_family	experiment	accession	database	consensus	log_p_value	fdr	tgt_num	tgt_pct	bgd_num	bgd_pct	motif_pwm	log_odds_detection
+a	Arnt:Ahr	bHLH	MCF7-Arnt-ChIP-Seq	Lo_et_al.	Homer	TBGCACGCAA	2	1	4	0.08	636.5	0.013200000000000002	

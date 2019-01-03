@@ -1,0 +1,5 @@
+chrom	start	end	id	value	gene
+chr6	102207441	102207830	region_1	1	A
+chr7	44688352	44688664	region_2	2	B
+chr7	92093830	92094134	region_3	3	C
+chr12	103669461	103669829	region_4	4	D

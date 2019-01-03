@@ -1,0 +1,3 @@
+PositionID	Offset	Sequence	Motif Name	Strand	MotifScore
+region_2	-24	TCGCATTG	1-TCGCATTG	+	8.236955
+region_1	-5	GATTACTC	2-GATTACTC	+	8.236955
