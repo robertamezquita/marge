@@ -15,26 +15,48 @@
 #'   if \code{FALSE}, path must point to the file directly
 #'   [default: TRUE]
 #'
-#' @return a tibble with the following columns:
+#' @return a list with the following structure:
 #' \itemize{
-#'   \item \code{motif_name} the readable name of the sequence
-#'   \item \code{motif_family} of transcription factors the motif belongs to
-#'   \item \code{experiment} from where the motif was identified
-#'   \item \code{accession} source publication or online repository ID
-#'   \item \code{database} the curator of the motif
-#'   \item \code{consensus} the accepted consensus motif sequence
-#'   \item \code{log_p_value} -log10(p-value) significance of enrichment
-#'   \item \code{fdr} Benjamini-Hochberg corrected p-value
+#'   \item \code{Motif_information} a dataframe with most of the info returned by \code{\link{read_denovo_results}}
+#'   \item \code{Matches_to_known_motifs} Dataframe with information on related known motifs matched to the de novo motif
+#' }
+#' The \code{Motif_information} dataframe has the following columns:
+#' \itemize{
+#'   \item \code{motif_name} name of the motif
+#'   \item \code{consensus} the consensus sequence of the denovo motif
+#'   \item \code{p_value} final enrichment from experiment (p-value)
+#'   \item \code{log_p_value} final enrichment from experiment -log10(p-value)
+#'   \item \code{info_content} information Content per bp
 #'   \item \code{tgt_num} number of times motif appears in target sequences
 #'   \item \code{tgt_pct} percent of times motif appears in target sequences
 #'   \item \code{bgd_num} number of times motif appears in background sequences
 #'   \item \code{bgd_pct} percent of times motif appears in background sequences
+#'   \item \code{tgt_pos} average position of motif in target sequences, where 0 = start of sequences
+#'   \item \code{bgd_pos} average position of motif in background sequences
+#'   \item \code{strand_bias} strand Bias (log2 ratio + to - strand density)
+#'   \item \code{multiplicity} multiplicity (# of sites on avg that occur together)
 #' }
-#'
-
-### test params
-path = "/Users/Marta/Documents/WTCHG/R scripts/Integration-snakemake-pipeline/results/HOMER/black/homerResults"
-###
+#' #' The \code{Matches_to_known_motifs} dataframe has the following columns:
+#' \itemize{
+#'   \item \code{motif_name} name of the motif
+#'   \item \code{motif_family} family of the motif
+#'   \item \code{ID} ID of the motif or the experiment
+#'   \item \code{database} database of the motif
+#'   \item \code{rank} match rank
+#'   \item \code{score} log odds score of the motif matrix, higher scores are better matches
+#'   \item \code{offset} from the center of the region
+#'   \item \code{orientation} forward or reverse (on average?)
+#'   \item \code{original_alignment} consensus sequence for comparison
+#'   \item \code{matched_alignment} matched sequence with mismatches in "-" from the consensus. Can be offset.
+#' }
+#'#' @importFrom stringr str_replace str_split str_detect
+#' @importFrom tidyr separate separate_
+#' @export
+# 
+# library(stringr)
+# library(tidyr)
+# ### test params
+# ###
 read_denovo_html_results = function(path, homer_dir = TRUE) {
   if (homer_dir == TRUE) {
     path = paste0(path, "/homerResults")
@@ -46,13 +68,14 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
   
   # Match correct html files
   filenames = list.files(path, pattern = "*.info.html")
+  df_list = list()
   
   for (f in filenames) {
+    print(f)
     ## Read in  html file
     html = readLines(paste(path,f,sep = "/"))
     
     
-    df_list = list()
     # get number of motif from file
     mypattern = "motif([^<]*).info.html"
     n = gsub(mypattern,
@@ -80,9 +103,7 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     mypattern = '<H2>Information for ([^<]*)</H2>'
     df$motif_name = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
-    mypattern = paste('<H2>Information for ',
-                      n,
-                      '\\-([^<]*) \\(Motif ',
+    mypattern = paste('.*-([^<]*) \\(Motif ',
                       n,
                       '\\)</H2>',
                       sep = "")
@@ -125,20 +146,20 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     mypattern = '<TR><TD>Multiplicity \\(# of sites on avg that occur together\\)</TD><TD>([^<]*)</TD></TR>'
     df$multiplicity = gsub(mypattern, '\\1', grep(mypattern, html, value =
                                                     TRUE))
-    
-    
+  
     df_list[[n]][["Motif_information"]] = df
     
     ########### new information
-    
-    df = data.frame(matrix(ncol = 10, nrow = length(gsub(
-      mypattern, '\\1', grep(mypattern, html, value = TRUE)
-    ))))
+  
+    mypattern = '<H4>([^<]*)</H4>'
+    length_df = length(gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE)))
+
+    df = data.frame(matrix(ncol = 9, nrow = length_df))
+
     colnames(df) =   c(
       'motif_name',
       'ID',
       'database',
-      'match',
       "rank",
       'score',
       'offset',
@@ -146,13 +167,12 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
       "original_alignment",
       "matched_alignment"
     )
-    
+
     # Known motif matches
     mypattern = '<H4>([^<]*)</H4>'
     df$motif_name = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
-    library(stringr)
-    library(tidyr)
+
     
     
     df <- df %>%
@@ -202,9 +222,7 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     # Alignment
     # original
     
-    mypattern = paste('<H2>Information for ',
-                      n,
-                      '\\-([^<]*) \\(Motif ',
+    mypattern = paste('.*-([^<]*) \\(Motif ',
                       n,
                       '\\)</H2>',
                       sep = "")
