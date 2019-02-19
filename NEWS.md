@@ -1,3 +1,8 @@
+# marge 0.0.4.9999
+
+* contributed by @mperalc : added `read_denovo_html_results()` to extract information from matched known motifs related to the *de novo* found motifs ("similar motifs found" under "best match/details") - see 
+[denovo motif html output](http://homer.ucsd.edu/homer/ngs/peakMotifs.output.png) for example
+
 # marge 0.0.4
 
 * added more information regarding installation hiccups and finding HOMER
