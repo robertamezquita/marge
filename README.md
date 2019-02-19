@@ -1,5 +1,10 @@
 # marge <img src="man/figures/Marge_Simpson.png" align="right" height=205 width=132 />
 
+## Update
+From [robertamezquita](https://github.com/robertamezquita). Added `read_denovo_html_results()` to extract information from matched known motifs related to the *de novo* found motifs ("similar motifs found" under "best match/details"):
+![denovo motif html output](http://homer.ucsd.edu/homer/ngs/peakMotifs.output.png)
+
+### Original README
 ## Overview 
 
 The aim of `marge` is to provide an R API to `HOMER` for the analysis of genomic data, utilizing a tidy framework to accelerate organization and visualization of analyses.
