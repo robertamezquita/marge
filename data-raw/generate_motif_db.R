@@ -29,6 +29,6 @@ HOMER_motifs <- bind_rows(org_motifs, amiss)
 
 
 ## Save data
-usethis::use_data(HOMER_motifs, overwrite = TRUE, compress = 'xz')
+usethis::use_data(HOMER_motifs, overwrite = TRUE, compress = 'xz', version = 3)
 
 
