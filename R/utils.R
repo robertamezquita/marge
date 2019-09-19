@@ -1,4 +1,14 @@
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
 #' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
 
 . <- NULL
 
@@ -16,12 +26,9 @@
         as.numeric() * 0.01
 }
 
-## Load HOMER_motifs data
-HOMER_motifs <- NULL
-data("HOMER_motifs", package = "marge", envir = environment())
-
 ## Add on motif_pwm to known_results data using HOMER_motifs.rda
 .append_known_pwm <- function(known_results) {
+    data(HOMER_motifs, envir = environment())
     hm <- HOMER_motifs %>%
 ##        dplyr::filter(rlang::UQ(rlang::sym('log_odds_detection')) > 0) %>%
         dplyr::select("motif_name", "motif_family", "experiment", "accession",

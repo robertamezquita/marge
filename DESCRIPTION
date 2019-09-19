@@ -5,7 +5,7 @@ Authors@R: c(
   person("Robert A.", "Amezquita", , "robert.amezquita@fredhutch.org", role = c("aut", "cre", "cph"))
   )		   
 Description: API for HOMER in R for genomic analysis using tidy conventions. Runs HOMER from native R functions and allows for organization of motif enrichment analysis, and subsequent reading in of motifs into tidily formatted tibbles for further analysis and visualization of many parallel analyses.
-Depends: R (>= 3.3.0)
+Depends: R (>= 3.5.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
