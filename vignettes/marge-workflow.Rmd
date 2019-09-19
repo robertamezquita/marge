@@ -22,7 +22,7 @@ Profiling of open chromatin regions through the assay for transposase-accessible
 
 ## Operation
 
-`marge` is distributed on Bitbucket as an `R` package, and is compatible with Mac OS X, Windows, and Linux. The latest version of [HOMER](http://homer.ucsd.edu/homer/) (v4.9 as of this writing) should be installed prior to `marge`, and [configured](http://homer.ucsd.edu/homer/introduction/configure.html) with the desired genomes and feature sets. Subsequently, `marge` can be installed from the [repository](https://github.com/robertamezquita/marge/). `R` Package dependencies and system requirements are documented in the repository and automatically installed in conjunction with the `marge` package. [Online documentation](https://marge.netlify.com/) is also available at `marge.netlify.com`. 
+`marge` is distributed on Bitbucket as an `R` package, and is compatible with Mac OS X, Windows, and Linux. The latest version of [HOMER](http://homer.ucsd.edu/homer/) (v4.9 as of this writing) should be installed prior to `marge`, and [configured](http://homer.ucsd.edu/homer/introduction/configure.html) with the desired genomes and feature sets. Subsequently, `marge` can be installed from the [repository](https://github.com/robertamezquita/marge/). `R` Package dependencies and system requirements are documented in the repository and automatically installed in conjunction with the `marge` package. [Online documentation](https://robertamezquita.github.io/marge/) is also available at `https://robertamezquita.github.io/marge/`. 
 
 # Use Cases
 
@@ -37,7 +37,7 @@ salutation <- c('hello world')
 salutation # view output
 ```
 
-Lastly, documentation for functions can be accessed invoking through help utility in `R`. [Online documentation](https://marge.netlify.com) with the same content is also available under the 'Reference' tab.
+Lastly, documentation for functions can be accessed invoking through help utility in `R`. [Online documentation](https://robertamezquita.github.io/marge/) with the same content is also available under the 'Reference' tab.
 
 ## Preamble
 
@@ -77,8 +77,8 @@ A minimal set of regions is included with the `marge` package for testing, and c
 
 ```{r, message=FALSE}
 ## Use included test regions from `marge` package
-test_file <- system.file('extdata/test_regions.bed', package = 'marge')
-dat <- readr::read_tsv(test_file)
+test.file <- system.file('extdata/test_regions.bed', package = 'marge')
+dat <- readr::read_tsv(test.file)
 
 dat
 ```
@@ -409,7 +409,6 @@ The latest `marge` source code is available at: `https://github.com/robertamezqu
 
 Stable versions of `marge` are located in the Downloads section of the source code repository, under the tab 'Tags', at: `https://github.com/robertamezquita/marge/downloads/`
 
-<!-- Online documentation for `marge` can be found at: `https://marge.netlify.com/` -->
 
 # Competing Interests
 
