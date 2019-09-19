@@ -22,4 +22,3 @@
         ## packageStartupMessage("Read the docs at https://marge.aerobatic.io")
     }
 }
-

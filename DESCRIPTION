@@ -1,6 +1,6 @@
 Package: marge
 Title: API for HOMER in R for Genomic Analysis using Tidy Conventions
-Version: 0.0.4
+Version: 0.0.4.9999
 Authors@R: c(
   person("Robert A.", "Amezquita", , "robert.amezquita@fredhutch.org", role = c("aut", "cre", "cph"))
   )		   
