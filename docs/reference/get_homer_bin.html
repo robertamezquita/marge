@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check for working HOMER installation — check_homer • marge</title>
+<title>Get the base installation directory of HOMER — get_homer_bin • marge</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,10 @@
 
 
 
-<meta property="og:title" content="Check for working HOMER installation — check_homer" />
-<meta property="og:description" content="Used to check that HOMER is installed and working on package attach,
-and reads/sets the options('homer_path') if user has not." />
+<meta property="og:title" content="Get the base installation directory of HOMER — get_homer_bin" />
+<meta property="og:description" content="Grabs the base directory of HOMER installation from options('homer_path');
+the correct base path should be set with package attachment, or alert user
+to check/set the path manually. This function is kept to keep code from breaking." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -116,22 +117,23 @@ and reads/sets the options('homer_path') if user has not." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check for working HOMER installation</h1>
+    <h1>Get the base installation directory of HOMER</h1>
     
-    <div class="hidden name"><code>check_homer.Rd</code></div>
+    <div class="hidden name"><code>get_homer_bin.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Used to check that HOMER is installed and working on package attach,
-and reads/sets the <code><a href='https://rdrr.io/r/base/options.html'>options('homer_path')</a></code> if user has not.</p>
+    <p>Grabs the base directory of HOMER installation from <code><a href='https://rdrr.io/r/base/options.html'>options('homer_path')</a></code>;
+the correct base path should be set with package attachment, or alert user
+to check/set the path manually. This function is kept to keep code from breaking.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>check_homer</span>()</pre>
+    <pre class="usage"><span class='fu'>get_homer_bin</span>()</pre>
 
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>logical; <code>TRUE</code> for success, <code>FALSE</code> otherwise</p>
+    <p>character vector with base directory of HOMER installation</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

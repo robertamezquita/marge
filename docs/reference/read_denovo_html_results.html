@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check for working HOMER installation — check_homer • marge</title>
+<title>Read de novo enriched motifs from HOMER .info.html output files — read_denovo_html_results • marge</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,8 @@
 
 
 
-<meta property="og:title" content="Check for working HOMER installation — check_homer" />
-<meta property="og:description" content="Used to check that HOMER is installed and working on package attach,
-and reads/sets the options('homer_path') if user has not." />
+<meta property="og:title" content="Read de novo enriched motifs from HOMER .info.html output files — read_denovo_html_results" />
+<meta property="og:description" content="Reads in results from all individual info.html files produced by HOMER de novo motif enrichment analysis." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -116,28 +115,79 @@ and reads/sets the options('homer_path') if user has not." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check for working HOMER installation</h1>
+    <h1>Read de novo enriched motifs from HOMER .info.html output files</h1>
     
-    <div class="hidden name"><code>check_homer.Rd</code></div>
+    <div class="hidden name"><code>read_denovo_html_results.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Used to check that HOMER is installed and working on package attach,
-and reads/sets the <code><a href='https://rdrr.io/r/base/options.html'>options('homer_path')</a></code> if user has not.</p>
+    <p>Reads in results from all individual info.html files produced by HOMER de novo motif enrichment analysis.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>check_homer</span>()</pre>
+    <pre class="usage"><span class='fu'>read_denovo_html_results</span>(<span class='no'>path</span>, <span class='kw'>homer_dir</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>path</th>
+      <td><p>path to the HOMER directory where all outputs are
+stored</p></td>
+    </tr>
+    <tr>
+      <th>homer_dir</th>
+      <td><p>does the path point to a HOMER directory;
+if <code>FALSE</code>, path must point to the file directly
+[default: TRUE]</p></td>
+    </tr>
+    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>logical; <code>TRUE</code> for success, <code>FALSE</code> otherwise</p>
+    <p>a list with the following structure:</p><ul>
+<li><p><code>Motif_information</code> a dataframe with most of the info returned by <code><a href='read_denovo_results.html'>read_denovo_results</a></code></p></li>
+<li><p><code>Matches_to_known_motifs</code> Dataframe with information on related known motifs matched to the de novo motif</p></li>
+</ul><p>The <code>Motif_information</code> dataframe has the following columns:</p><ul>
+<li><p><code>motif_name</code> name of the motif</p></li>
+<li><p><code>consensus</code> the consensus sequence of the denovo motif</p></li>
+<li><p><code>p_value</code> final enrichment from experiment (p-value)</p></li>
+<li><p><code>log_p_value</code> final enrichment from experiment -log10(p-value)</p></li>
+<li><p><code>info_content</code> information Content per bp</p></li>
+<li><p><code>tgt_num</code> number of times motif appears in target sequences</p></li>
+<li><p><code>tgt_pct</code> percent of times motif appears in target sequences</p></li>
+<li><p><code>bgd_num</code> number of times motif appears in background sequences</p></li>
+<li><p><code>bgd_pct</code> percent of times motif appears in background sequences</p></li>
+<li><p><code>tgt_pos</code> average position of motif in target sequences, where 0 = start of sequences</p></li>
+<li><p><code>bgd_pos</code> average position of motif in background sequences</p></li>
+<li><p><code>strand_bias</code> strand Bias (log2 ratio + to - strand density)</p></li>
+<li><p><code>multiplicity</code> multiplicity (# of sites on avg that occur together)</p></li>
+</ul><p>#' The <code>Matches_to_known_motifs</code> dataframe has the following columns:</p><ul>
+<li><p><code>motif_name</code> name of the motif</p></li>
+<li><p><code>motif_family</code> family of the motif</p></li>
+<li><p><code>ID</code> ID of the motif or the experiment</p></li>
+<li><p><code>database</code> database of the motif</p></li>
+<li><p><code>rank</code> match rank</p></li>
+<li><p><code>score</code> log odds score of the motif matrix, higher scores are better matches</p></li>
+<li><p><code>offset</code> from the center of the region</p></li>
+<li><p><code>orientation</code> forward or reverse (on average?)</p></li>
+<li><p><code>original_alignment</code> consensus sequence for comparison</p></li>
+<li><p><code>matched_alignment</code> matched sequence with mismatches in "-" from the consensus. Can be offset.</p></li>
+</ul><p>#' @importFrom stringr str_replace str_split str_detect</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Following an analysis using <code><a href='find_motifs_genome.html'>find_motifs_genome</a></code>, a HOMER directory
+is created which analyses the enrichment of known motifs. This
+function reads and parses in the .html file into a tidy format.</p>
+<p>It might be more useful to read in the .html files instead of the .motifs file because
+the .html contain information on known similar motifs.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>
