@@ -61,7 +61,7 @@ find_motifs_instances <- function(x, path, genome,
     ## Run findMotifsGenome.pl ---------------------------------------------
     ## Make HOMER results output dir
     ## Construct and run command
-    homer_base <- get_homer_base()
+    homer_base <- get_homer_bin()
     
     cmd <- paste(
         paste0(homer_base, "findMotifsGenome.pl"),

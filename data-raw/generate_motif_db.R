@@ -3,7 +3,7 @@ library(tidyverse)
 devtools::load_all()
 
 ## Construct paths to HOMER db motif sets (all)
-base <- marge::get_homer_base() %>% dirname()
+base <- marge::get_homer_bin() %>% dirname()
 mset <- c('vertebrates', 'insects', 'plants', 'worms', 'yeast')
 paths <- paste0(base, '/data/knownTFs/', mset, '/all.motifs')
 

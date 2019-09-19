@@ -45,11 +45,11 @@ The latest version of [HOMER](http://homer.ucsd.edu/homer/introduction/install.h
 
 ```{r, eval=FALSE}
 ## In a terminal/command-line
-perl /path-to-homer/configureHomer.pl -install hg38 # human sequence data
 perl /path-to-homer/configureHomer.pl -install mm10 # mouse sequence data
+## perl /path-to-homer/configureHomer.pl -install hg38 # human sequence data
 ```
 
-Additionally, users should take care to ensure that HOMER is added to the executable path, such that entering `findMotifsGenome.pl` on the command-line works as expected. For further details, we again refer to the [introduction/install](http://homer.ucsd.edu/homer/introduction/install.html) section of the HOMER documentation.
+Additionally, users should take care to ensure that HOMER is added to the executable path, such that entering `findMotifsGenome.pl` on the command-line works as expected. For further details, we again refer to the [introduction/install](http://homer.ucsd.edu/homer/introduction/install.html) section of the HOMER documentation. For this vignette, we make use of the `mm10` human sequence data package in HOMER.
 
 ## Basic Usage
 
@@ -57,12 +57,13 @@ What follows is a basic tutorial of a typical workflow in performing motif enric
 
 ### Check HOMER and Installed Packages
 
-To check that HOMER was installed properly and is detected by `marge` invoke the `check_homer()` function. Sequence annotation data for the genome of interest should also have been installed prior to running HOMER or `marge`. To check what is currently available via HOMER, simply run `list_homer_packages()`. For this analysis, either 'hg38' or 'mm10' packages can be installed, which include the human and mouse genomes and annotations, respectively.
+To check that HOMER was installed properly and is detected by `marge` invoke the `check_homer()` function. Sequence annotation data for the genome of interest should also have been installed prior to running HOMER or `marge`. To check what is currently available via HOMER, simply run `list_homer_packages()`. For this analysis, either 'mm10' or 'mm10' packages can be installed, which include the human and mouse genomes and annotations, respectively.
 
 ```{r}
 ## Install `marge`:
 ## devtools::install_github('robertamezquita/marge', ref = 'master')
-library(marge)
+## library(marge)
+devtools::load_all() ## load dev version from cloning GH repo
 
 check_homer()
 list_homer_packages()

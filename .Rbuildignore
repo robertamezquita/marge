@@ -9,3 +9,5 @@ tar.gz$
 ^README.Rmd$
 ^cran-comments.md$
 ^data-raw$
+^doc$
+^Meta$

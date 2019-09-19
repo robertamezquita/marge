@@ -116,7 +116,7 @@ find_motifs_genome <- function(x, path, genome,
     system(paste("mkdir -p", path))
     
     ## Construct and run command
-    homer_base <- get_homer_base()
+    homer_base <- get_homer_bin()
     
     cmd <- paste(
         paste0(homer_base, "findMotifsGenome.pl"),
