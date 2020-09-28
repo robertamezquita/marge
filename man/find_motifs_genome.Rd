@@ -4,12 +4,24 @@
 \alias{find_motifs_genome}
 \title{Find Motifs over Regions}
 \usage{
-find_motifs_genome(x, path, genome, motif_length = c(8, 10, 12),
-  scan_size = 100, optimize_count = 8, background = "automatic",
-  local_background = FALSE, only_known = FALSE, only_denovo = FALSE,
-  fdr_num = 0, cores = parallel::detectCores(),
-  cache = .calc_free_mem()/4, overwrite = FALSE,
-  keep_minimal = FALSE)
+find_motifs_genome(
+  x,
+  path,
+  genome,
+  motif_length = c(8, 10, 12),
+  scan_size = 100,
+  optimize_count = 8,
+  background = "automatic",
+  local_background = FALSE,
+  only_known = FALSE,
+  only_denovo = FALSE,
+  fdr_num = 0,
+  cores = parallel::detectCores(),
+  cache = .calc_free_mem()/4,
+  overwrite = FALSE,
+  keep_minimal = FALSE,
+  scale_logos = FALSE
+)
 }
 \arguments{
 \item{x}{\code{data.frame} with the first three columns being
@@ -60,6 +72,9 @@ regions around peaks to use as the local background
 
 \item{keep_minimal}{remove all extra clutter from results, keep only
 the essentials (\code{knownResults.txt} and \code{homerMotifs.all.motifs}
+[default: \code{FALSE}]}
+
+\item{scale_logos}{whether to scale sequence logos by information content 
 [default: \code{FALSE}]}
 }
 \value{

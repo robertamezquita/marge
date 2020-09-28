@@ -4,8 +4,15 @@
 \alias{find_motifs_instances}
 \title{Find Instances of Motifs Across Regions}
 \usage{
-find_motifs_instances(x, path, genome, motif_file, scan_size = "given",
-  cores = parallel::detectCores(), cache = .calc_free_mem()/4)
+find_motifs_instances(
+  x,
+  path,
+  genome,
+  motif_file,
+  scan_size = "given",
+  cores = parallel::detectCores(),
+  cache = .calc_free_mem()/4
+)
 }
 \arguments{
 \item{x}{\code{data.frame} with the first three columns being
