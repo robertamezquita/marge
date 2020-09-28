@@ -4,8 +4,14 @@
 \alias{write_homer_motif}
 \title{Write Motif PWM in HOMER format}
 \usage{
-write_homer_motif(motif_pwm, motif_name, log_odds_detection,
-  consensus = NULL, file, append = TRUE)
+write_homer_motif(
+  motif_pwm,
+  motif_name,
+  log_odds_detection,
+  consensus = NULL,
+  file,
+  append = TRUE
+)
 }
 \arguments{
 \item{motif_pwm}{tibble with alphabet columns}

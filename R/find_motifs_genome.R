@@ -56,6 +56,8 @@
 #' @param keep_minimal remove all extra clutter from results, keep only
 #'   the essentials (\code{knownResults.txt} and \code{homerMotifs.all.motifs}
 #'   [default: \code{FALSE}]
+#' @param scale_logos whether to scale sequence logos by information content 
+#'   [default: \code{FALSE}]
 #'
 #' @return Nothing; called for its side-effect of producing HOMER results
 #' 
@@ -74,7 +76,8 @@ find_motifs_genome <- function(x, path, genome,
                                cores = parallel::detectCores(),
                                cache = .calc_free_mem() / 4,
                                overwrite = FALSE,
-                               keep_minimal = FALSE) {
+                               keep_minimal = FALSE,
+                               scale_logos = FALSE) {
 
     ## Error checking -----------------------------------------------------
     if (overwrite == FALSE & dir.exists(path)) {
@@ -142,6 +145,9 @@ find_motifs_genome <- function(x, path, genome,
     }
     if (scan_size == "given") {
         cmd <- paste(cmd, "-chopify")
+    }
+    if (scale_logos == TRUE) {
+        cmd <- paste(cmd, "-bits")
     }
     system(cmd)
 

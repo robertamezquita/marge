@@ -4,7 +4,8 @@
 \name{HOMER_motifs}
 \alias{HOMER_motifs}
 \title{HOMER Database of Motifs}
-\format{A tibble enumerating 3229 motifs from various motif sets
+\format{
+A tibble enumerating 3229 motifs from various motif sets
   (organisms), as described by:
 \describe{
   \item{mset}{Motif set (in most cases, organism) from which motif
@@ -20,7 +21,8 @@
   \item{motif_pwm}{List vector with motif position weight matrices (PWMs).}
   \item{log_p_value_detection}{Negative log p-value with which motif was
     detected (not used, but included for completeness).}
-}}
+}
+}
 \source{
 \url{http://homer.ucsd.edu/homer/}
 }

@@ -59,6 +59,7 @@ URL below, and primarily meant for interpreting motifs from HOMER's
 own database. To read more about the HOMER format, see:
 \url{http://homer.ucsd.edu/homer/motif/creatingCustomMotifs.html}
 
+
 Note that HOMER also has additional information in the motif name
 regarding its origin and identity. See the internal function \code{.parse_homer_subfields}
 for more info and to break this field up.
