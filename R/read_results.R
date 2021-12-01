@@ -38,7 +38,7 @@
 #' 
 
 read_known_results <- function(path, homer_dir = TRUE) {
-    if (homer_dir == TRUE) {
+    if (homer_dir) {
         path <- paste0(path, "/knownResults.txt")
     } 
     if (!file.exists(path)) {
@@ -54,19 +54,18 @@ read_known_results <- function(path, homer_dir = TRUE) {
                        'tgt_num', 'tgt_pct', 'bgd_num', 'bgd_pct')
 
     ## Parse down all the combined columns
-    tmp <- raw %>%
-        tidyr::separate_("motif_name", c('motif_name', 'experiment', 'database'),
-                         '/', extra = 'drop') %>%
-        mutate_(log_p_value = "-log10(log_p_value)")
+    tmp <- tidyr::separate(data = raw, 
+                           col = motif_name, 
+                           into = c('motif_name', 'experiment', 'database'),
+                           sep = '/', 
+                           extra = 'drop') %>%
+        dplyr::mutate(log_p_value = "-log10(log_p_value)")
     parsed <- .parse_homer_subfields(tmp) %>%
-        dplyr::mutate_at(vars(contains('pct')), .parse_pcts)
+        dplyr::mutate(dplyr::across(contains('pct'), .parse_pcts))
 
     ## Add on motif_pwm from the HOMERdb (see utils.R)
     known <- .append_known_pwm(parsed)
-
-    ## Add on motif names to motif_pwm list column
     names(known$motif_pwm) <- known$motif_name
-    
     return(known)
 }
 
@@ -113,7 +112,7 @@ read_known_results <- function(path, homer_dir = TRUE) {
 #' @seealso \code{\link{read_known_results}}, \code{\link{find_motifs_genome}}
 
 read_denovo_results <- function(path, homer_dir = TRUE) {
-    if (homer_dir == TRUE) {
+    if (homer_dir) {
         path <- paste0(path, "/homerMotifs.all.motifs")
     }
     if (!file.exists(path)) {
@@ -123,10 +122,7 @@ read_denovo_results <- function(path, homer_dir = TRUE) {
     
     ## Suppress too few values warning when reading FDR column with NA values
     motifs <- suppressWarnings(read_motif(path))
-
-    ## Add names
     names(motifs$motif_pwm) <- motifs$motif_name
-    
     return(motifs)
 }
 
@@ -209,35 +205,30 @@ read_denovo_results <- function(path, homer_dir = TRUE) {
 
 read_motif <- function(path) {
     ## Read in raw file
-    all <- suppressMessages(suppressWarnings(read_tsv(path, col_names = FALSE)))
+    all <- suppressMessages(suppressWarnings(readr::read_tsv(path, col_names = FALSE)))
 
     ## Calculate separation of each motif using '>' for extraction
-    gt <- str_detect(all$X1, '>')
+    gt <- stringr::str_detect(all$X1, '>')
 
     ## --------------------------------------------------------
     ## Construct base motif info
     motif_info <- all[gt, 1:3] %>%
-        rename_(consensus = 'X1', motif_name = 'X2',
-                log_odds_detection = 'X3') %>%
-        mutate_(consensus = interp(~str_replace(var, '>', ''),
-                                   var = as.name("consensus")))
+      dplyr::rename(consensus = 'X1', motif_name = 'X2', log_odds_detection = 'X3') %>%
+      dplyr::mutate(consensus = gsub("^>", "", consensus))
     
     ## Munge motif PWMs
     ## Get motifs - where no '>' is detected
     ## Each motif instance is separated by a '>'
     ## Use cumsum to add up where '>' occur consecutively
     motif_pwm <- all[!gt, c('X1', 'X2', 'X3', 'X4')] %>%
-        mutate(motif_id = cumsum(gt)[!gt]) %>%
-        rename_(A = 'X1', C = 'X2', G = 'X3', T = 'X4') %>%
-        group_by_('motif_id') %>%
-        mutate_at(vars('A', 'C', 'G', 'T'), as.numeric) %>%
-        nest(.key = 'motif_pwm') %>%
-        select_(interp(~-var, var = as.name('motif_id')))
-
+      dplyr::mutate(motif_id = cumsum(gt)[!gt]) %>%
+      dplyr::rename(A = 'X1', C = 'X2', G = 'X3', T = 'X4') %>%
+      dplyr::group_by(motif_id) %>%
+      dplyr::mutate(across(all_of(c('A', 'C', 'G', 'T')), as.numeric)) %>%
+      tidyr::nest(motif_pwm = c('A', 'C', 'G', 'T'))
 
     ## Combine PWM + info
-    motif_info <- motif_info %>%
-        bind_cols(motif_pwm)
+    motif_info <- dplyr::bind_cols(motif_info, motif_pwm)
 
     ## Try to parse subfields based on detecting splits
     ## Else it returns the same table
@@ -245,8 +236,7 @@ read_motif <- function(path) {
     
     ## For motif files with extra info
     if (ncol(all[gt, ]) > 3) {
-        motif_info <- motif_info %>%
-            mutate(log_p_value_detection = all[gt, ]$X4)
+        motif_info <- dplyr::mutate(.data = motif_info, log_p_value_detection = all[gt, ]$X4)
     }
     ## Return early if incomplete (old?) HOMER motif
     ## or custom with less than 7 columns
@@ -256,43 +246,46 @@ read_motif <- function(path) {
 
     ## --------------------------------------------------------
     ## Munge occurence and stats for complete info HOMER motifs
-    motif_info <- motif_info %>%
-        mutate(occurrence = all[gt, ]$X6,
-               stats = all[gt, ]$X7)
+    motif_info <- dplyr::mutate(.data = motif_info, 
+                                occurrence = all[gt, ]$X6, 
+                                stats = all[gt, ]$X7)
     
     ## Helper formatting functions
     .drop_prior <- function(x, pattern = ":") {
-        str_split(x, pattern) %>%
+      stringr::str_split(x, pattern) %>%
             purrr::map(function(x) { x[2] }) %>% unlist
     }
     .format_pct <- function(x) {
-        str_replace(x, '%\\)', '') %>%
+      stringr::str_replace(x, '%\\)', '') %>%
             as.numeric * 0.01
     }
 
     ## Munge motif position statistics
     stats <- motif_info[, 'stats'] %>%
-        separate_('stats',
-                  c('tgt_pos', 'tgt_std', 'bgd_pos', 'bgd_std',
-                    'strand_bias', 'multiplicity'), ',') %>%
-        mutate_all(.drop_prior) %>%
-        mutate_all(as.numeric)
+        tidyr::separate(col = stats,
+                 into = c('tgt_pos', 'tgt_std', 'bgd_pos', 
+                          'bgd_std', 'strand_bias', 'multiplicity'), 
+                 sep = ',') %>%
+        dplyr::mutate(across(everything(), .drop_prior)) %>%
+        dplyr::mutate(across(everything(), as.numeric))
 
     ## Munge motif occurrence metrics
     occurrence <- motif_info[, 'occurrence'] %>%
-        separate_('occurrence', c('tgt_num', 'bgd_num', 'log_p_value', 'fdr'), ',') %>%
-        mutate_all(.drop_prior) %>%
-        separate_('tgt_num', c('tgt_num', 'tgt_pct'), '\\(') %>%
-        separate_('bgd_num', c('bgd_num', 'bgd_pct'), '\\(') %>%
-        mutate_at(vars(contains('_pct')), .format_pct) %>%
-        mutate_all(as.numeric) %>%
-        mutate_(log_p_value = "-log10(log_p_value)")
+      tidyr::separate(col = occurrence, 
+                      into = c('tgt_num', 'bgd_num', 'log_p_value', 'fdr'), 
+                      sep = ',', 
+                      fill = "right") %>%
+      dplyr::mutate(across(everything(), .drop_prior)) %>% 
+      tidyr::separate(col = tgt_num, into = c('tgt_num', 'tgt_pct'), sep = '\\(') %>%
+      tidyr::separate(col = bgd_num, into = c('bgd_num', 'bgd_pct'), sep = '\\(') %>%
+      dplyr::mutate(across(contains('_pct'), .format_pct)) %>%
+      dplyr::mutate(across(everything(), as.numeric)) %>%
+      dplyr::rename("-log10(log_p_value)" = "log_p_value")
 
     ## Put it all together
     motif_final <- motif_info %>%
-        select_(interp(~-var, var = as.name('occurrence'))) %>%
-        select_(interp(~-var, var = as.name('stats'))) %>%
-        bind_cols(occurrence, stats)
+      dplyr::select(-occurrence, -stats) %>%
+      bind_cols(occurrence, stats)
 
     return(motif_final)
 }
@@ -334,22 +327,21 @@ read_motif <- function(path) {
 .parse_homer_subfields <- function(motif_tbl) {
     cond <- stringr::str_detect(motif_tbl$motif_name, "/") %>%
         sum(., na.rm = TRUE) > 0
-    if (cond == TRUE) {
-        motif_tbl <- motif_tbl %>%
-            tidyr::separate_('motif_name',
-                             c('motif_name', 'experiment', 'database'),
-                             '/', extra = "drop", fill = "right")
+    if (cond) {
+        motif_tbl <- tidyr::separate(data = motif_tbl, col = motif_name,
+                                     into = c('motif_name', 'experiment', 'database'), 
+                                     sep = '/', extra = "drop", fill = "right")
     }
 
     ## Detect if parentheses are present in motif_name
     ## to break apart into motif_name vs. motif_family
     cond <- stringr::str_detect(motif_tbl$motif_name, '\\(') %>%
         sum(., na.rm = TRUE) > 0
-    if (cond == TRUE) {
-        motif_tbl <- motif_tbl %>%
-            tidyr::separate_('motif_name',
-                             c('motif_name', 'motif_family'),
-                             '\\(', extra = "drop", fill = "right")
+    if (cond) {
+        motif_tbl <- tidyr::separate(data = motif_tbl, 
+                                     col = motif_name, 
+                                     into = c('motif_name', 'motif_family'), 
+                                     sep = '\\(', extra = "drop", fill = "right")
         motif_tbl$motif_family <- stringr::str_replace(motif_tbl$motif_family, '\\)', '')
     }
 
@@ -358,15 +350,13 @@ read_motif <- function(path) {
     if ("experiment" %in% colnames(motif_tbl)) {
         cond <- stringr::str_detect(motif_tbl$experiment, '\\(') %>%
             sum(., na.rm = TRUE) > 0
-        if (cond == TRUE) {
-            motif_tbl <- motif_tbl %>%
-                tidyr::separate_('experiment',
-                                 c('experiment', 'accession'),
-                                 '\\(', extra = "drop", fill = "right")
+        if (cond) {
+            motif_tbl <- tidyr::separate(data = motif_tbl, 
+                                         col = experiment, 
+                                         into = c('experiment', 'accession'), 
+                                         sep = '\\(', extra = "drop", fill = "right")
             motif_tbl$accession <- stringr::str_replace(motif_tbl$accession, '\\)', '')
         }
     }
-    
     return(motif_tbl)
 }
-        

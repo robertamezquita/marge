@@ -15,10 +15,16 @@ NULL
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 .calc_free_mem <- function() {
-    ## Currently broken
-    ##    system("awk '/MemFree/ {print $2}' /proc/meminfo", intern=TRUE) %>%
-    ##        as.numeric / 1000
-    return(4000)
+  if(.Platform$OS.type == "unix"){
+    meminfo <- system("free -m", intern = T) %>% sapply(., stringr::str_split, " ")
+    memfree <- purrr::keep(meminfo[[2]], ~.x != "")[4] %>% as.numeric()
+    return(memfree/4)
+  } else if(.Platform$OS.type == "windows"){
+    # I don't have windows to test this...
+    return(1000)
+  } else {
+    return(1000)
+  }
 }
 
 .parse_pcts <- function(x) {

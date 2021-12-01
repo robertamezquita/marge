@@ -46,11 +46,15 @@
 #'   regions around peaks to use as the local background
 #'   [by default this is not used, e.g. default: \code{FALSE}]
 #' @param only_known turns off searching for denovo motifs
+#'   [default: \code{FALSE}]
 #' @param only_denovo turns off searching for known motif enrichment
-#' @param fdr_num number of randomizations to perform to calculate FDR [default: 0]
-#' @param cores number of cores to use [default: all cores available]
+#'   [default: \code{FALSE}]
+#' @param fdr_num number of randomizations to perform to calculate FDR 
+#'   [default: 0]
+#' @param cores number of cores to use 
+#'   [default: \code{max(1, parallel::detectCores() - 2)}]
 #' @param cache number in MB to use as cache to store sequences in memory
-#'   [default: calculates free memory and divides by 4]
+#'   [default: 8000Mb (8Gb)]
 #' @param overwrite overwrite an existing HOMER results directory
 #'   [default: \code{FALSE}]
 #' @param keep_minimal remove all extra clutter from results, keep only
@@ -58,7 +62,9 @@
 #'   [default: \code{FALSE}]
 #' @param scale_logos whether to scale sequence logos by information content 
 #'   [default: \code{FALSE}]
-#'
+#' @param showHomerStdErr Whether to print HOMER stderr to the R console 
+#'   [default: \code{FALSE}]
+#'   
 #' @return Nothing; called for its side-effect of producing HOMER results
 #' 
 #' @export
@@ -73,21 +79,21 @@ find_motifs_genome <- function(x, path, genome,
                                only_known = FALSE,
                                only_denovo = FALSE,
                                fdr_num = 0,
-                               cores = parallel::detectCores(),
-                               cache = .calc_free_mem() / 4,
+                               cores = unlist(options("mc.cores")) %||% max(1, parallel::detectCores() - 2),
+                               cache = 8000, # syze in MB
                                overwrite = FALSE,
                                keep_minimal = FALSE,
-                               scale_logos = FALSE) {
+                               scale_logos = FALSE, 
+                               showHomerStdErr = FALSE) {
 
     ## Error checking -----------------------------------------------------
-    if (overwrite == FALSE & dir.exists(path)) {
+    if (overwrite == FALSE && dir.exists(path)) {
         stop("Output directory exists (set `overwrite = TRUE` to bypass)")
     }
-
-    if (background != "automatic" && local_background != FALSE) {
+    if (background != "automatic" && local_background) {
         stop("`background` and `local_background` are mutually exclusive; use only one")
     }
-    if (only_known != FALSE & only_denovo != FALSE) {
+    if (only_known && only_denovo) {
         stop("Both `only_known` and `only_denovo` set to `TRUE`; pick one")
     }
         
@@ -97,7 +103,7 @@ find_motifs_genome <- function(x, path, genome,
         target_bed <- tempfile("target_")
         .write_bed(x, path = target_bed)
     } else {
-        if (file.exists(x) != TRUE) {
+        if (!file.exists(x)) {
             stop("Check that your bed file for `x` exists")
         }        
         target_bed <- x
@@ -107,7 +113,7 @@ find_motifs_genome <- function(x, path, genome,
             background_bed <- tempfile("background_")
             .write_bed(background, path = background_bed)
         } else {
-            if (file.exists(background) != TRUE) {
+            if (!file.exists(background)) {
                 stop("Check that your bed file for `background` exists")
             }        
             background_bed <- background
@@ -134,25 +140,25 @@ find_motifs_genome <- function(x, path, genome,
     if (!("automatic" %in% background)) {
         cmd <- paste(cmd, "-bg", background_bed)
     }
-    if (local_background != FALSE) {
+    if (local_background) {
         cmd <- paste(cmd, "-local", local_background)
     }
-    if (only_known == TRUE) {
+    if (only_known) {
         cmd <- paste(cmd, "-nomotif")
     }
-    if (only_denovo == TRUE) {
+    if (only_denovo) {
         cmd <- paste(cmd, "-noknown")
     }
     if (scan_size == "given") {
         cmd <- paste(cmd, "-chopify")
     }
-    if (scale_logos == TRUE) {
+    if (scale_logos) {
         cmd <- paste(cmd, "-bits")
     }
-    system(cmd)
+    system(cmd, ignore.stderr = !showHomerStdErr)
 
     ## Remove extraneous files if desired
-    if (keep_minimal == TRUE) {
+    if (keep_minimal) {
         extra_files <- c("homerResults.html",
                          "knownResults.html",
                          "homerMotifs.motifs*",

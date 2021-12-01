@@ -58,7 +58,7 @@
 # ### test params
 # ###
 read_denovo_html_results = function(path, homer_dir = TRUE) {
-  if (homer_dir == TRUE) {
+  if (homer_dir) {
     path = paste0(path, "/homerResults")
   }
   if (!file.exists(path)) {
@@ -73,14 +73,11 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
   for (f in filenames) {
     print(f)
     ## Read in  html file
-    html = readLines(paste(path,f,sep = "/"))
-    
+    html = readLines(paste(path, f, sep = "/"))
     
     # get number of motif from file
     mypattern = "motif([^<]*).info.html"
-    n = gsub(mypattern,
-             '\\1',
-             grep(mypattern, f, value = TRUE))
+    n = gsub(mypattern, '\\1', grep(mypattern, f, value = TRUE))
     
     # Create dataframe
     df = data.frame(matrix(ncol = 13, nrow = 1))
@@ -103,10 +100,7 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     mypattern = '<H2>Information for ([^<]*)</H2>'
     df$motif_name = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
-    mypattern = paste('.*-([^<]*) \\(Motif ',
-                      n,
-                      '\\)</H2>',
-                      sep = "")
+    mypattern = paste('.*-([^<]*) \\(Motif ', n, '\\)</H2>', sep = "")
     df$consensus = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     # Other characteristics: p-value, log-pvalue etc as in main function
@@ -114,12 +108,10 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     df$p_value = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     mypattern = '<TR><TD>log p-value:</TD><TD>([^<]*)</TD></TR>'
-    df$log_p_value = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                   TRUE))
+    df$log_p_value = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     mypattern = '<TR><TD>Information Content per bp:</TD><TD>([^<]*)</TD></TR>'
-    df$info_content = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                    TRUE))
+    df$info_content = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     mypattern = '<TR><TD>Number of Target Sequences with motif</TD><TD>([^<]*)</TD></TR>'
     df$tgt_num = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
@@ -140,22 +132,18 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
     df$bgd_pos = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     mypattern = '<TR><TD>Strand Bias \\(log2 ratio \\+ to \\- strand density\\)</TD><TD>([^<]*)</TD></TR>'
-    df$strand_bias = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                   TRUE))
+    df$strand_bias = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     mypattern = '<TR><TD>Multiplicity \\(# of sites on avg that occur together\\)</TD><TD>([^<]*)</TD></TR>'
-    df$multiplicity = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                    TRUE))
+    df$multiplicity = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
   
     df_list[[n]][["Motif_information"]] = df
     
     ########### new information
-  
     mypattern = '<H4>([^<]*)</H4>'
     length_df = length(gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE)))
 
     df = data.frame(matrix(ncol = 9, nrow = length_df))
-
     colnames(df) =   c(
       'motif_name',
       'ID',
@@ -167,76 +155,54 @@ read_denovo_html_results = function(path, homer_dir = TRUE) {
       "original_alignment",
       "matched_alignment"
     )
-
+    
     # Known motif matches
     mypattern = '<H4>([^<]*)</H4>'
     df$motif_name = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
-
-    
-    
-    df <- df %>%
-      tidyr::separate_(
-        'motif_name',
-        c('motif_name', 'ID', 'database'),
-        '/',
-        extra = "drop",
-        fill = "right"
-      )
-    
+    df <- tidyr::separate(data = df, 
+                          col = motif_name, 
+                          into = c('motif_name', 'ID', 'database'), 
+                          sep = '/',
+                          extra = "drop",
+                          fill = "right")
     
     ## Detect if parentheses are present in motif_name
     ## to break apart into motif_name vs. motif_family
     cond <- stringr::str_detect(df$motif_name, '\\(') %>%
       sum(., na.rm = TRUE) > 0
-    if (cond == TRUE) {
-      df <- df %>%
-        tidyr::separate_(
-          'motif_name',
-          c('motif_name', 'motif_family'),
-          '\\(',
-          extra = "drop",
-          fill = "right"
-        )
-      df$motif_family <-
-        stringr::str_replace(df$motif_family, '\\)', '')
+    if (cond) {
+      df <- tidyr::separate(data = df, 
+                            col = motif_name, 
+                            into = c('motif_name', 'motif_family'),
+                            sep = '\\(', 
+                            extra = "drop", 
+                            fill = "right")
+      df$motif_family <- stringr::str_replace(df$motif_family, '\\)', '')
     }
     
     # Ranks
     mypattern = '<TR><TD>Match Rank:</TD><TD>([^<]*)</TD></TR>'
     df$rank = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
-    
     # Scores
     mypattern = '<TR><TD>Score:</TD><TD>([^<]*)</TD</TR>'
     df$score = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
-    
     # Offset
     mypattern = '<TR><TD>Offset:</TD><TD>([^<]*)</TD</TR>'
     df$offset = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
-    
     # Orientation
     mypattern = '<TR><TD>Orientation:</TD><TD>([^<]*)</TD></TR>'
-    df$orientation = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                   TRUE))
-    
+    df$orientation = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     # Alignment
     # original
-    
-    mypattern = paste('.*-([^<]*) \\(Motif ',
-                      n,
-                      '\\)</H2>',
-                      sep = "")
-    df$original_alignment = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                          TRUE))
+    mypattern = paste('.*-([^<]*) \\(Motif ', n, '\\)</H2>', sep = "")
+    df$original_alignment = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     # matched
     mypattern = '.+>([^<]+)</FONT></TD></TR></TABLE>'
-    df$matched_alignment = gsub(mypattern, '\\1', grep(mypattern, html, value =
-                                                         TRUE))
+    df$matched_alignment = gsub(mypattern, '\\1', grep(mypattern, html, value = TRUE))
     
     df_list[[n]][["Matches_to_known_motifs"]] = df
-    
-    
   }
   return(df_list)
 }
