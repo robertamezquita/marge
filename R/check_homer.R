@@ -14,7 +14,8 @@ check_homer <- function() {
         message("HOMER installation found.")
 
         ## Parse homer_base path and assign via options
-        loc <- system('type -a findMotifsGenome.pl', intern = TRUE)
+      # remove -a parameter as it breaks on many systems
+        loc <- system('type findMotifsGenome.pl', intern = TRUE)
         tmp <- stringr::str_split(loc, ' ')[[1]][3]
         hp <- dirname(dirname(tmp)) # expectation is cmd is nested two levels deep
         options('homer_path' = hp)
@@ -22,7 +23,7 @@ check_homer <- function() {
     }
 
     ## Not a default success, but user has set `options('homer_path')` (success or fail)
-    if (output != 0 & !is.null(options('homer_path')$homer_path)) {
+    if (output != 0 && !is.null(options('homer_path')$homer_path)) {
         homer_base <- options('homer_path')
         cmd2 <- paste0(homer_base, '/bin/findMotifsGenome.pl')
         output2 <- suppressWarnings(system(cmd2, ignore.stdout = TRUE, ignore.stderr = TRUE))
@@ -129,15 +130,14 @@ list_homer_packages <- function(installed_only = TRUE) {
     parsed <- stringr::str_split(output, " ", n = 4) %>%
         purrr::map(.parse_out) %>%
         dplyr::bind_rows() %>%
-        dplyr::rename_("status" = "V1",
-                       "package" = "V2",
-                       "version" = "V3",
-                       "description" = "V4")
+        dplyr::rename(status = V1,
+                       package = V2,
+                       version = V3,
+                       description = V4)
 
     ## Return either only installed or all packages
-    if (installed_only == TRUE) {
-        dplyr::filter_(parsed, "status == '+'") %>%
-            return
+    if (installed_only) {
+        dplyr::filter(parsed, status == '+') %>% return()
     } else {
         return(parsed)
     }
